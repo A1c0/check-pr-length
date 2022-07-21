@@ -1,0 +1,10 @@
+{
+  "name": "check-pr-lengh",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "volta": {
+    "node": "16.16.0",
+    "yarn": "1.22.19"
+  }
+}
