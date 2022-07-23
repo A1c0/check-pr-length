@@ -70,4 +70,15 @@ shell.exec(`git checkout ${baseBranch}`, { silent: true });
 
 shell.exec(`git merge --no-ff --no-commit ${prBranch}`, { silent: true });
 
-const changes = shell.exec("git diff --staged --stat", { silent: true }).stdout;
+const changes = shell.exec(
+  `git diff --staged --stat ${excludeFiles
+    .map((f) => `':(exclude)${f}'`)
+    .join(" ")}`,
+  { silent: true }
+).stdout;
+
+console.log(changes);
+
+shell.exec(`git merge --abort`, { silent: true });
+
+shell.exec(`git checkout ${prBranch}`, { silent: true });
