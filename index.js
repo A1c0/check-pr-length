@@ -6,6 +6,18 @@ const chalk = require("chalk");
 const fs = require("fs");
 const version = require("./package.json").version;
 
+console.log("args:");
+console.log(args);
+console.log();
+
+const excludeFiles = (args.exclude?.split(";") ?? []).flatMap((blob) =>
+  shell.ls(blob)
+);
+
+console.log("excludeFiles:");
+console.log(excludeFiles);
+console.log();
+
 if (!shell.which("git")) {
   shell.echo(chalk.red("Sorry, this script requires git"));
   shell.exit(1);
@@ -54,6 +66,8 @@ const prBranch = shell
   .exec("git rev-parse --abbrev-ref HEAD", { silent: true })
   .stdout.trim();
 
-console.log(prBranch);
+shell.exec(`git checkout ${baseBranch}`, { silent: true });
 
-console.log(args);
+shell.exec(`git merge --no-ff --no-commit ${prBranch}`, { silent: true });
+
+const changes = shell.exec("git diff --staged --stat", { silent: true }).stdout;
