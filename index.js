@@ -30,6 +30,17 @@ if (!isInRepoGit) {
   shell.exit(1);
 }
 
+const baseBranch = args.base ?? "develop";
+
+const isBaseBranchExists =
+  shell.exec(`git rev-parse --verify ${baseBranch}`, { silent: true }).code ===
+  0;
+
+if (!isBaseBranchExists) {
+  shell.echo(chalk.red(`Sorry, the base branch ${baseBranch} does not exist`));
+  shell.exit(1);
+}
+
 const isSomethingToCommit =
   shell.exec("git status --porcelain", { silent: true }).stdout.length > 0;
 
@@ -37,8 +48,6 @@ if (isSomethingToCommit) {
   shell.echo(chalk.red("Sorry, there are changes in stage"));
   shell.exit(1);
 }
-
-const baseBranch = args.base ?? "develop";
 
 const maxLines = args.max ?? 500;
 
