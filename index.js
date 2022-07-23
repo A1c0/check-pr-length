@@ -31,6 +31,7 @@ if (!isInRepoGit) {
 }
 
 const baseBranch = args.base ?? "develop";
+const maxLines = args.max ?? 500;
 
 const isBaseBranchExists =
   shell.exec(`git rev-parse --verify ${baseBranch}`, { silent: true }).code ===
@@ -49,6 +50,10 @@ if (isSomethingToCommit) {
   shell.exit(1);
 }
 
-const maxLines = args.max ?? 500;
+const prBranch = shell
+  .exec("git rev-parse --abbrev-ref HEAD", { silent: true })
+  .stdout.trim();
+
+console.log(prBranch);
 
 console.log(args);
