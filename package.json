@@ -1,10 +1,21 @@
 {
   "name": "check-pr-lengh",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "bin": "index.js",
   "volta": {
     "node": "16.16.0",
     "yarn": "1.22.19"
+  },
+  "dependencies": {
+    "chalk": "4",
+    "minimist": "^1.2.6",
+    "sanctuary": "^3.1.0",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@types/shelljs": "^0.8.11",
+    "prettier": "^2.7.1"
   }
 }
