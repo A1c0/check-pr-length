@@ -7,10 +7,6 @@ const fs = require("fs");
 const path = require("path");
 const version = require("./package.json").version;
 
-const excludeFiles = (args.exclude?.split(";") ?? []).flatMap((glob) =>
-  shell.ls(glob)
-);
-
 if (!shell.which("git")) {
   shell.echo(chalk.red("Sorry, this script requires git"));
   shell.exit(1);
@@ -39,7 +35,7 @@ if (!isInRepoGit) {
 const baseBranch = args.base ?? "develop";
 const maxLines = args.max ?? 500;
 
-if (!(typeof args.max === "number")) {
+if (!(typeof maxLines === "number")) {
   shell.echo(chalk.red("Sorry, max must be a number"));
   shell.exit(1);
 }
@@ -65,6 +61,12 @@ const prBranch = shell
   .exec("git rev-parse --abbrev-ref HEAD", { silent: true })
   .stdout.trim();
 
+const onFinish = () => {
+  shell.exec(`git merge --abort`, { silent: true });
+
+  shell.exec(`git checkout ${prBranch}`, { silent: true });
+};
+
 shell.exec(`git checkout ${baseBranch}`, { silent: true });
 
 const mergeStatusCode = shell.exec(
@@ -74,39 +76,52 @@ const mergeStatusCode = shell.exec(
 
 if (mergeStatusCode !== 0) {
   shell.echo(chalk.red("Sorry, merge failed"));
+  onFinish();
   shell.exit(1);
 }
 
+const excludeFiles = (args.exclude?.split(";") ?? []).flatMap((glob) =>
+  shell.ls(glob)
+);
+
+const includeFiles = (args.include?.split(";") ?? []).flatMap((glob) =>
+  shell.ls(glob)
+);
+
+const excludeOptions = excludeFiles.map((f) => `':!${f}'`).join(" ");
+const includeOptions = includeFiles.map((f) => `'${f}'`).join(" ");
+
 const changes = shell.exec(
-  `git diff --staged --stat ${excludeFiles
-    .map((f) => `':(exclude)${f}'`)
-    .join(" ")}`,
+  `git diff --staged --stat ${excludeOptions} ${includeOptions}`,
   { silent: true }
 ).stdout;
 
-shell.exec(`git merge --abort`, { silent: true });
+if (!changes || changes.length === 0) {
+  shell.echo(chalk.red("Sorry, there are no changes"));
+  onFinish();
+  shell.exit(1);
+}
 
-shell.exec(`git checkout ${prBranch}`, { silent: true });
+onFinish();
 
-const changesLines = changes.split("\n");
+const changesLines = changes.split("\n").filter((l) => l.trim());
 
 const lastLine = changesLines[changesLines.length - 1];
 
-const safeParseInt = (str) => {
-  if (!/^\d+$/.test(str)) {
-    throw new Error(`${str} is not a number`);
-  }
-  return Number(str);
-};
+const changesSummaryRegex =
+  /(\d+ files? changed, )(\d+)( insertions?\(\+\))(, )(\d+)( deletions?\(\-\))/;
 
-const ChangesSummaryRegex =
-  /(\d+ files? changed, )(\d+)( insertions?\(\+\), )(\d+)( deletions?\(\-\))/;
+const [
+  filesInfo,
+  insertionCount,
+  insertionInfo,
+  comma,
+  deletionCount,
+  deletionInfo,
+] = changesSummaryRegex.exec(lastLine).slice(1);
 
-const [filesInfo, insertionCount, insertionInfo, deletionCount, deletionInfo] =
-  ChangesSummaryRegex.exec(lastLine).slice(1);
-
-const isMaxLinesInsertionReached = safeParseInt(insertionCount) > maxLines;
-const isMaxLinesDeletionReached = safeParseInt(deletionCount) > maxLines;
+const isMaxLinesInsertionReached = Number(insertionCount) > maxLines;
+const isMaxLinesDeletionReached = Number(deletionCount) > maxLines;
 
 shell.echo("PR number of changes:");
 shell.echo(changesLines.slice(0, -1).join("\n"));
@@ -115,7 +130,7 @@ shell.echo(
     isMaxLinesInsertionReached
       ? chalk.red(`${insertionCount}${insertionInfo}`)
       : chalk.green(`${insertionCount}${insertionInfo}`)
-  }${
+  }${comma}${
     isMaxLinesDeletionReached
       ? chalk.red(`${deletionCount}${deletionInfo}`)
       : chalk.green(`${deletionCount}${deletionInfo}`)
