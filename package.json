@@ -13,7 +13,7 @@
     "index.js",
     "ressource/usage.txt"
   ],
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "index.js",
   "license": "MIT",
   "bin": "index.js",
