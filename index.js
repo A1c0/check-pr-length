@@ -4,6 +4,7 @@ const args = require("minimist")(process.argv.slice(2));
 const shell = require("shelljs");
 const chalk = require("chalk");
 const fs = require("fs");
+const path = require("path");
 const version = require("./package.json").version;
 
 const excludeFiles = (args.exclude?.split(";") ?? []).flatMap((glob) =>
@@ -21,7 +22,9 @@ if (args.version || args.v) {
 }
 
 if (args.help || args.h) {
-  shell.echo(fs.readFileSync("./ressource/usage.txt", "utf8"));
+  shell.echo(
+    fs.readFileSync(path.resolve(__dirname, "./ressource/usage.txt"), "utf8")
+  );
   shell.exit(0);
 }
 
