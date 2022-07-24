@@ -1,6 +1,6 @@
 usage : check-pr-length [-v | --version] [-h | --help]
                         [--base[=<base-branch>]] [--max[=<max-line-changes>]]
-                        [--exclude[="<blob>;<blob>;..."]]
+                        [--exclude[="<blob>;<blob>;..."]] [--include[="<blob>;<blob>;..."]]
     -v, --version
         Print the version number.
     -h, --help
@@ -11,3 +11,5 @@ usage : check-pr-length [-v | --version] [-h | --help]
         The maximum number of line changes allowed (insertions or deletions). Defaults to `500`.
     --exclude[="<blob>;<blob>;..."]
         A list of blobs to exclude from the check.
+    --include[="<blob>;<blob>;..."]
+        A list of blobs to include from the check.
