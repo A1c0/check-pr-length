@@ -10,9 +10,10 @@
   "homepage": "https://github.com/A1c0/check-pr-length",
   "bugs": "https://github.com/A1c0/check-pr-length/issues",
   "files": [
-    "index.js"
+    "index.js",
+    "ressource/usage.txt"
   ],
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "index.js",
   "license": "MIT",
   "bin": "index.js",

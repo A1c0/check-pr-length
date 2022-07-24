@@ -16,7 +16,7 @@ if (!shell.which("git")) {
 }
 
 if (args.version || args.v) {
-  shell.echo(`v${version}`);
+  shell.echo(version);
   shell.exit(0);
 }
 
