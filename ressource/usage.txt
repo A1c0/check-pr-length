@@ -1,2 +1,3 @@
 usage : check-pr-length [-v | --version] [-h | --help]
                         [--base[=<base-branch>]] [--max[=<max-line-changes>]]
+                        [--exclude[="<blob>;<blob>;..."]]
