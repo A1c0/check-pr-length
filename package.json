@@ -1,11 +1,26 @@
 {
   "name": "check-pr-lengh",
-  "version": "0.0.1",
+  "author": "Alexandre CONTASSOT <alexandrecontassot@hotmail.fr>",
+  "keywords": [
+    "git",
+    "cli",
+    "ci",
+    "cd"
+  ],
+  "homepage": "https://github.com/A1c0/check-pr-length",
+  "bugs": "https://github.com/A1c0/check-pr-length/issues",
+  "files": [
+    "index.js"
+  ],
+  "version": "0.0.2",
   "main": "index.js",
   "license": "MIT",
   "bin": "index.js",
+  "engines": {
+    "node": ">=14"
+  },
   "volta": {
-    "node": "16.16.0",
+    "node": "14.20.0",
     "yarn": "1.22.19"
   },
   "dependencies": {
