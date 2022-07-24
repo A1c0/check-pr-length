@@ -1,0 +1,52 @@
+name: Checks
+on:
+  push:
+    branches:
+      - main
+jobs:
+  publish-and-tag:
+    name: Build & Publish on NPM registry & Create tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: NPM or Yarn install with caching
+        uses: bahmutov/npm-install@v1
+      - run : echo "PACKAGE_JSON_VERSION=$(node -e "console.log(require('./package.json').version)")" >> $GITHUB_ENV
+      - run : echo "TAG_VERSION=v$PACKAGE_JSON_VERSION" >> $GITHUB_ENV
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { TAG_VERSION } = process.env;
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${TAG_VERSION}`,
+              sha: context.sha
+            })
+      - name: Create a release
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { PACKAGE_JSON_VERSION, TAG_VERSION } = process.env;
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "all"
+            }).then(x => x.data);
+            const pr = prs.find(x => x.merge_commit_sha === context.sha);
+            const body = (pr && pr.body) || "- some bugfixes or improving performance features";
+            github.rest.repos.createRelease({
+              name: `Version ${PACKAGE_JSON_VERSION}`,
+              body: body,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: TAG_VERSION,
+            });
+      - run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
