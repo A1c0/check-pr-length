@@ -139,27 +139,28 @@ const [
 
 const isMaxLinesInsertionReached = Number(insertionCount) > maxLines;
 const isMaxLinesDeletionReached = Number(deletionCount) > maxLines;
-const isMaxLinesTotalReached = Number(deletionCount) + Number(insertionCount) > maxTotalLines;
+const changedCount = Number(deletionCount) + Number(insertionCount);
+const isMaxLinesTotalReached = changedCount > maxTotalLines;
 
 shell.echo("PR number of changes:");
 shell.echo(changesLines.slice(0, -1).join("\n"));
 shell.echo(
   `${
     isMaxLinesInsertionReached
-      ? chalk.red(`${insertionCount}/${maxLines} lines added`)
-      : chalk.green(`${insertionCount}/${maxLines} lines added`)
+      ? chalk.red(`${insertionCount ?? 0}/${maxLines} lines added`)
+      : chalk.green(`${insertionCount ?? 0}/${maxLines} lines added`)
   }`);
 shell.echo(
   `${
     isMaxLinesDeletionReached
-      ? chalk.red(`${deletionCount}/${maxLines} lines removed`)
-      : chalk.green(`${deletionCount}/${maxLines} lines removed`)
+      ? chalk.red(`${deletionCount ?? 0}/${maxLines} lines removed`)
+      : chalk.green(`${deletionCount ?? 0}/${maxLines} lines removed`)
   }`);
 shell.echo(
   `${
     isMaxLinesTotalReached
-      ? chalk.red(`${insertionCount + deletionCount}/${maxTotalLines} lines changed`)
-      : chalk.green(`${insertionCount + deletionCount}/${maxTotalLines} lines changed`)
+      ? chalk.red(`${changedCount}/${maxTotalLines} lines changed`)
+      : chalk.green(`${changedCount}/${maxTotalLines} lines changed`)
   }`);
 
 if (isMaxLinesInsertionReached || isMaxLinesDeletionReached || isMaxLinesTotalReached) {
