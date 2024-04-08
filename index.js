@@ -127,16 +127,14 @@ if (! silent) {
 };
 
 const changesSummaryRegex =
-  /(\d+ files? changed)(, (\d+)( insertions?\(\+\)))?(, (\d+)( deletions?\(\-\)))?/;
+  /(\d+ files? changed)(, (\d+) insertions?\(\+\))?(, (\d+) deletions?\(\-\))?/;
 
 const [
   filesInfo,
   crap0,
   insertionCount,
-  insertionInfo,
   crap1,
   deletionCount,
-  deletionInfo,
 ] = changesSummaryRegex.exec(lastLine).slice(1);
 
 const isMaxLinesInsertionReached = Number(insertionCount) > maxLines;
