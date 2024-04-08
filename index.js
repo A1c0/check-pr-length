@@ -122,6 +122,10 @@ const changesLines = changes.split("\n").filter((l) => l.trim());
 
 const lastLine = changesLines[changesLines.length - 1];
 
+if (! silent) {
+  shell.echo(`Processing: ${lastLine}`);
+};
+
 const changesSummaryRegex =
   /(\d+ files? changed, )(\d+)( insertions?\(\+\))(, )(\d+)( deletions?\(\-\))/;
 
