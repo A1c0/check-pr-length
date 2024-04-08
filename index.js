@@ -146,14 +146,14 @@ shell.echo(changesLines.slice(0, -1).join("\n"));
 shell.echo(
   `${
     isMaxLinesInsertionReached
-      ? chalk.red(`${insertionCount}/${max} lines added`)
-      : chalk.green(`${insertionCount}/${max} lines added`)
+      ? chalk.red(`${insertionCount}/${maxLines} lines added`)
+      : chalk.green(`${insertionCount}/${maxLines} lines added`)
   }`);
 shell.echo(
   `${
     isMaxLinesDeletionReached
-      ? chalk.red(`${deletionCount}/${max} lines removed`)
-      : chalk.green(`${deletionCount}/${max} lines removed`)
+      ? chalk.red(`${deletionCount}/${maxLines} lines removed`)
+      : chalk.green(`${deletionCount}/${maxLines} lines removed`)
   }`);
 shell.echo(
   `${
