@@ -153,7 +153,7 @@ shell.echo(
   `${
     isMaxLinesDeletionReached
       ? chalk.red(`${deletionCount}/${max} lines removed`)
-      : chalk.green(`${deletionCount}/${max} lines removed)
+      : chalk.green(`${deletionCount}/${max} lines removed`)
   }`);
 shell.echo(
   `${
