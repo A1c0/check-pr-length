@@ -37,6 +37,13 @@ const maxLines = args.max ?? 500;
 const maxTotalLines = args.total ?? maxLines * 2;
 const silent = args.silent !== 'false' ? true : false;
 
+if (! silent) {
+  shell.echo(`baseBranch: ${baseBranch}`);
+  shell.echo(`max: ${maxLines}`);
+  shell.echo(`total: ${maxTotalLines}`);
+  shell.echo(`silent: false`);
+}
+
 if (!(typeof maxLines === "number")) {
   shell.echo(chalk.red("Sorry, max must be a number"));
   shell.exit(1);
