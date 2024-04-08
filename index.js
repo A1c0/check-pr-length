@@ -35,6 +35,7 @@ if (!isInRepoGit) {
 const baseBranch = args.base ?? "develop";
 const maxLines = args.max ?? 500;
 const maxTotalLines = args.total ?? maxLines * 2;
+const silent = args.total !== 'false' ? true : false;
 
 if (!(typeof maxLines === "number")) {
   shell.echo(chalk.red("Sorry, max must be a number"));
@@ -77,7 +78,7 @@ shell.exec(`git checkout ${baseBranch}`, { silent: true });
 
 const mergeStatusCode = shell.exec(
   `git merge --no-ff --no-commit ${prBranch}`,
-  { silent: true }
+  { silent }
 ).code;
 
 if (mergeStatusCode !== 0) {
@@ -99,7 +100,7 @@ const includeOptions = includeFiles.map((f) => `'${f}'`).join(" ");
 
 const changes = shell.exec(
   `git diff --staged --stat ${excludeOptions} ${includeOptions}`,
-  { silent: true }
+  { silent }
 ).stdout;
 
 if (!changes || changes.length === 0) {
