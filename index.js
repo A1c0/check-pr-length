@@ -41,6 +41,11 @@ if (!(typeof maxLines === "number")) {
   shell.exit(1);
 }
 
+if (!(typeof maxTotalLines === "number")) {
+  shell.echo(chalk.red("Sorry, total must be a number"));
+  shell.exit(1);
+}
+
 const isBaseBranchExists =
   shell.exec(`git rev-parse --verify ${baseBranch}`, { silent: true }).code ===
   0;
