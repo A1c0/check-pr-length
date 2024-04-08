@@ -149,14 +149,13 @@ shell.echo(
     isMaxLinesDeletionReached
       ? chalk.red(`${deletionCount}${deletionInfo}`)
       : chalk.green(`${deletionCount}${deletionInfo}`)
-  }`)
-! isMaxLinesInsertionReached && ! isMaxLinesDeletionReached ? shell.echo(
+  }`);
+!shell.echo(
   `${
     isMaxLinesTotalReached
       ? chalk.red(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
       : chalk.green(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
-  }`) : null
-);
+  }`);
 
 if (isMaxLinesInsertionReached || isMaxLinesDeletionReached || isMaxLinesTotalReached) {
   shell.echo(chalk.red(`Sorry, the PR is too big`));
