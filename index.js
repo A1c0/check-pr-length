@@ -35,7 +35,7 @@ if (!isInRepoGit) {
 const baseBranch = args.base ?? "develop";
 const maxLines = args.max ?? 500;
 const maxTotalLines = args.total ?? maxLines * 2;
-const silent = args.total !== 'false' ? true : false;
+const silent = args.silent !== 'false' ? true : false;
 
 if (!(typeof maxLines === "number")) {
   shell.echo(chalk.red("Sorry, max must be a number"));
