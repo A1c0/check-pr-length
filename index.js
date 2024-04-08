@@ -127,13 +127,14 @@ if (! silent) {
 };
 
 const changesSummaryRegex =
-  /(\d+ files? changed, )(\d+)( insertions?\(\+\))(, )(\d+)( deletions?\(\-\))/;
+  /(\d+ files? changed)(, (\d+)( insertions?\(\+\)))?(, (\d+)( deletions?\(\-\)))?/;
 
 const [
   filesInfo,
+  crap0,
   insertionCount,
   insertionInfo,
-  comma,
+  crap1,
   deletionCount,
   deletionInfo,
 ] = changesSummaryRegex.exec(lastLine).slice(1);
@@ -145,20 +146,22 @@ const isMaxLinesTotalReached = Number(deletionCount) + Number(insertionCount) > 
 shell.echo("PR number of changes:");
 shell.echo(changesLines.slice(0, -1).join("\n"));
 shell.echo(
-  `${filesInfo}${
+  `${
     isMaxLinesInsertionReached
-      ? chalk.red(`${insertionCount}${insertionInfo}`)
-      : chalk.green(`${insertionCount}${insertionInfo}`)
-  }${comma}${
-    isMaxLinesDeletionReached
-      ? chalk.red(`${deletionCount}${deletionInfo}`)
-      : chalk.green(`${deletionCount}${deletionInfo}`)
+      ? chalk.red(`${insertionCount}/${max} lines added`)
+      : chalk.green(`${insertionCount}/${max} lines added`)
   }`);
-!shell.echo(
+shell.echo(
+  `${
+    isMaxLinesDeletionReached
+      ? chalk.red(`${deletionCount}/${max} lines removed`)
+      : chalk.green(`${deletionCount}/${max} lines removed)
+  }`);
+shell.echo(
   `${
     isMaxLinesTotalReached
-      ? chalk.red(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
-      : chalk.green(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
+      ? chalk.red(`${insertionCount + deletionCount}/${maxTotalLines} lines changed`)
+      : chalk.green(`${insertionCount + deletionCount}/${maxTotalLines} lines changed`)
   }`);
 
 if (isMaxLinesInsertionReached || isMaxLinesDeletionReached || isMaxLinesTotalReached) {
