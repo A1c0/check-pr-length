@@ -137,9 +137,9 @@ const [
   deletionCount,
 ] = changesSummaryRegex.exec(lastLine).slice(1);
 
-const isMaxLinesInsertionReached = Number(insertionCount) > maxLines;
-const isMaxLinesDeletionReached = Number(deletionCount) > maxLines;
-const changedCount = Number(deletionCount) + Number(insertionCount);
+const isMaxLinesInsertionReached = Number(insertionCount ?? '0') > maxLines;
+const isMaxLinesDeletionReached = Number(deletionCount ?? '0') > maxLines;
+const changedCount = Number(deletionCount ?? '0') + Number(insertionCount ?? '0');
 const isMaxLinesTotalReached = changedCount > maxTotalLines;
 
 shell.echo("PR number of changes:");
