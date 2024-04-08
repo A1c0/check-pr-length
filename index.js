@@ -34,6 +34,7 @@ if (!isInRepoGit) {
 
 const baseBranch = args.base ?? "develop";
 const maxLines = args.max ?? 500;
+const maxTotalLines = args.total ?? 1000;
 
 if (!(typeof maxLines === "number")) {
   shell.echo(chalk.red("Sorry, max must be a number"));
@@ -122,6 +123,7 @@ const [
 
 const isMaxLinesInsertionReached = Number(insertionCount) > maxLines;
 const isMaxLinesDeletionReached = Number(deletionCount) > maxLines;
+const isMaxLinesTotalReached = Number(deletionCount) + Number(insertionCount) > maxTotalLines;
 
 shell.echo("PR number of changes:");
 shell.echo(changesLines.slice(0, -1).join("\n"));
@@ -135,9 +137,16 @@ shell.echo(
       ? chalk.red(`${deletionCount}${deletionInfo}`)
       : chalk.green(`${deletionCount}${deletionInfo}`)
   }`
+! isMaxLinesInsertionReached && ! isMaxLinesDeletionReached ? shell.echo(
+  `${
+    isMaxLinesTotalReached
+      ? chalk.red(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
+      : chalk.green(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
+  }`) : null;
+  }`
 );
 
-if (isMaxLinesInsertionReached || isMaxLinesDeletionReached) {
+if (isMaxLinesInsertionReached || isMaxLinesDeletionReached || isMaxLinesTotalReached) {
   shell.echo(chalk.red(`Sorry, the PR is too big`));
   shell.exit(1);
 } else {
