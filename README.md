@@ -28,6 +28,8 @@ usage : check-pr-length [-v | --version] [-h | --help]
         The base branch to compare against. Defaults to `develop`.
     --max[=<max-line-changes>]
         The maximum number of line changes allowed (insertions or deletions). Defaults to `500`.
+    --total[=<max-line-changes>]
+        The maximum number of line changes allowed (insertions and deletions). Defaults to twice the max.
     --exclude[="<blob>;<blob>;..."]
         A list of blobs to exclude from the check.
 ```
