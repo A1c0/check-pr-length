@@ -149,14 +149,13 @@ shell.echo(
     isMaxLinesDeletionReached
       ? chalk.red(`${deletionCount}${deletionInfo}`)
       : chalk.green(`${deletionCount}${deletionInfo}`)
-  }`
+  }`)
 ! isMaxLinesInsertionReached && ! isMaxLinesDeletionReached ? shell.echo(
   `${
     isMaxLinesTotalReached
       ? chalk.red(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
       : chalk.green(`${insertionCount + deletionCount}/${maxTotalLines} total changed lines`)
-  }`) : null;
-  }`
+  }`) : null
 );
 
 if (isMaxLinesInsertionReached || isMaxLinesDeletionReached || isMaxLinesTotalReached) {
