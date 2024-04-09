@@ -55,7 +55,7 @@ if (!(typeof maxTotalLines === "number")) {
 }
 
 const isBaseBranchExists =
-  shell.exec(`git rev-parse --verify ${baseBranch}`, { silent: true }).code ===
+  shell.exec(`git rev-parse --verify ${baseBranch}`, { silent }).code ===
   0;
 
 if (!isBaseBranchExists) {
@@ -64,7 +64,7 @@ if (!isBaseBranchExists) {
 }
 
 const isSomethingToCommit =
-  shell.exec("git status --porcelain", { silent: true }).stdout.length > 0;
+  shell.exec("git status --porcelain", { silent }).stdout.length > 0;
 
 if (isSomethingToCommit) {
   shell.echo(chalk.red("Sorry, there are changes in stage"));
@@ -72,16 +72,16 @@ if (isSomethingToCommit) {
 }
 
 const prBranch = shell
-  .exec("git rev-parse --abbrev-ref HEAD", { silent: true })
+  .exec("git rev-parse --abbrev-ref HEAD", { silent })
   .stdout.trim();
 
 const onFinish = () => {
-  shell.exec(`git merge --abort`, { silent: true });
+  shell.exec(`git merge --abort`, { silent });
 
-  shell.exec(`git checkout ${prBranch}`, { silent: true });
+  shell.exec(`git checkout ${prBranch}`, { silent });
 };
 
-shell.exec(`git checkout ${baseBranch}`, { silent: true });
+shell.exec(`git checkout ${baseBranch}`, { silent });
 
 const mergeStatusCode = shell.exec(
   `git merge --no-ff --no-commit ${prBranch}`,
