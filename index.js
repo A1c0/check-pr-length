@@ -111,6 +111,15 @@ const changes = shell.exec(
 ).stdout;
 
 if (!changes || changes.length === 0) {
+  const changesWithoutExcudes = shell.exec(
+    `git diff --staged --stat ${includeOptions}`,
+    { silent }
+  ).stdout;
+  if (changesWithoutExcudes && changesWithoutExcudes.length > 0) {
+    shell.echo(chalk.green("All changes were ignored"));
+    onFinish();
+    shell.exit(0);
+  }
   shell.echo(chalk.red("Sorry, there are no changes"));
   onFinish();
   shell.exit(1);
