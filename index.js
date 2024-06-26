@@ -34,14 +34,28 @@ if (!isInRepoGit) {
 
 const baseBranch = args.base ?? "develop";
 const maxLines = args.max ?? 500;
+const maxTotalLines = args.total ?? maxLines * 2;
+const silent = args.silent !== 'false' ? true : false;
+
+if (! silent) {
+  shell.echo(`baseBranch: ${baseBranch}`);
+  shell.echo(`max: ${maxLines}`);
+  shell.echo(`total: ${maxTotalLines}`);
+  shell.echo(`silent: false`);
+}
 
 if (!(typeof maxLines === "number")) {
   shell.echo(chalk.red("Sorry, max must be a number"));
   shell.exit(1);
 }
 
+if (!(typeof maxTotalLines === "number")) {
+  shell.echo(chalk.red("Sorry, total must be a number"));
+  shell.exit(1);
+}
+
 const isBaseBranchExists =
-  shell.exec(`git rev-parse --verify ${baseBranch}`, { silent: true }).code ===
+  shell.exec(`git rev-parse --verify ${baseBranch}`, { silent }).code ===
   0;
 
 if (!isBaseBranchExists) {
@@ -50,7 +64,7 @@ if (!isBaseBranchExists) {
 }
 
 const isSomethingToCommit =
-  shell.exec("git status --porcelain", { silent: true }).stdout.length > 0;
+  shell.exec("git status --porcelain", { silent }).stdout.length > 0;
 
 if (isSomethingToCommit) {
   shell.echo(chalk.red("Sorry, there are changes in stage"));
@@ -58,20 +72,20 @@ if (isSomethingToCommit) {
 }
 
 const prBranch = shell
-  .exec("git rev-parse --abbrev-ref HEAD", { silent: true })
+  .exec("git rev-parse --abbrev-ref HEAD", { silent })
   .stdout.trim();
 
 const onFinish = () => {
-  shell.exec(`git merge --abort`, { silent: true });
+  shell.exec(`git merge --abort`, { silent });
 
-  shell.exec(`git checkout ${prBranch}`, { silent: true });
+  shell.exec(`git checkout ${prBranch}`, { silent });
 };
 
-shell.exec(`git checkout ${baseBranch}`, { silent: true });
+shell.exec(`git checkout ${baseBranch}`, { silent });
 
 const mergeStatusCode = shell.exec(
   `git merge --no-ff --no-commit ${prBranch}`,
-  { silent: true }
+  { silent }
 ).code;
 
 if (mergeStatusCode !== 0) {
@@ -93,10 +107,19 @@ const includeOptions = includeFiles.map((f) => `'${f}'`).join(" ");
 
 const changes = shell.exec(
   `git diff --staged --stat ${excludeOptions} ${includeOptions}`,
-  { silent: true }
+  { silent }
 ).stdout;
 
 if (!changes || changes.length === 0) {
+  const changesWithoutExcudes = shell.exec(
+    `git diff --staged --stat ${includeOptions}`,
+    { silent }
+  ).stdout;
+  if (changesWithoutExcudes && changesWithoutExcudes.length > 0) {
+    shell.echo(chalk.green("All changes were ignored"));
+    onFinish();
+    shell.exit(0);
+  }
   shell.echo(chalk.red("Sorry, there are no changes"));
   onFinish();
   shell.exit(1);
@@ -108,36 +131,48 @@ const changesLines = changes.split("\n").filter((l) => l.trim());
 
 const lastLine = changesLines[changesLines.length - 1];
 
+if (! silent) {
+  shell.echo(`Processing: ${lastLine}`);
+};
+
 const changesSummaryRegex =
-  /(\d+ files? changed, )(\d+)( insertions?\(\+\))(, )(\d+)( deletions?\(\-\))/;
+  /(\d+ files? changed)(, (\d+) insertions?\(\+\))?(, (\d+) deletions?\(\-\))?/;
 
 const [
   filesInfo,
+  crap0,
   insertionCount,
-  insertionInfo,
-  comma,
+  crap1,
   deletionCount,
-  deletionInfo,
 ] = changesSummaryRegex.exec(lastLine).slice(1);
 
-const isMaxLinesInsertionReached = Number(insertionCount) > maxLines;
-const isMaxLinesDeletionReached = Number(deletionCount) > maxLines;
+const isMaxLinesInsertionReached = Number(insertionCount ?? '0') > maxLines;
+const isMaxLinesDeletionReached = Number(deletionCount ?? '0') > maxLines;
+const changedCount = Number(deletionCount ?? '0') + Number(insertionCount ?? '0');
+const isMaxLinesTotalReached = changedCount > maxTotalLines;
 
 shell.echo("PR number of changes:");
 shell.echo(changesLines.slice(0, -1).join("\n"));
 shell.echo(
-  `${filesInfo}${
+  `${
     isMaxLinesInsertionReached
-      ? chalk.red(`${insertionCount}${insertionInfo}`)
-      : chalk.green(`${insertionCount}${insertionInfo}`)
-  }${comma}${
+      ? chalk.red(`${insertionCount ?? 0}/${maxLines} lines added`)
+      : chalk.green(`${insertionCount ?? 0}/${maxLines} lines added`)
+  }`);
+shell.echo(
+  `${
     isMaxLinesDeletionReached
-      ? chalk.red(`${deletionCount}${deletionInfo}`)
-      : chalk.green(`${deletionCount}${deletionInfo}`)
-  }`
-);
+      ? chalk.red(`${deletionCount ?? 0}/${maxLines} lines removed`)
+      : chalk.green(`${deletionCount ?? 0}/${maxLines} lines removed`)
+  }`);
+shell.echo(
+  `${
+    isMaxLinesTotalReached
+      ? chalk.red(`${changedCount}/${maxTotalLines} lines changed`)
+      : chalk.green(`${changedCount}/${maxTotalLines} lines changed`)
+  }`);
 
-if (isMaxLinesInsertionReached || isMaxLinesDeletionReached) {
+if (isMaxLinesInsertionReached || isMaxLinesDeletionReached || isMaxLinesTotalReached) {
   shell.echo(chalk.red(`Sorry, the PR is too big`));
   shell.exit(1);
 } else {
